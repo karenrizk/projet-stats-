@@ -73,8 +73,10 @@ def trace_droite(a,b):
     b: l'ordonnée 1a l'origine.
     Representation entre 2 points
     de cette droite."""
-    pass
-
+    x1,y1=b, 0 #on a l'ordonnee a l'origine qui sert de premier point 
+    x2,y2=a*len(listX)+b,len(listY) #on calcule l'emplacement du dernier point 
+    plt.plot([x1,y1],[x2,y2],'r-',1w=2)
+    plt.show()
 
 
 
