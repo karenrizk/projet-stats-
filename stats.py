@@ -2,13 +2,12 @@ from asyncore import write
 import tkinter as tk 
 import random as rd
 from urllib.parse import ParseResultBytes 
+import matplotlib.pyplot as plt
+import numpy as np
 
-
-
-
-
-
-
+#Variables globales.
+listX=[]
+listY=[]
 
 
 # Outils
@@ -31,11 +30,10 @@ def lit_fichier(nomfichier):
     """lit un fichier sur le disque dur et renvera 2 listes 
     premiere liste la premiere colonne et la deuxieme 
     liste les ordonnees"""
+    global listX, listY
     fic = open(nomfichier,"r")
     list=[]
     liste=[]
-    listX = []
-    listY = []
     for ligne in fic:
         list=ligne.split()
         liste.append(list)
@@ -57,21 +55,25 @@ def lit_fichier(nomfichier):
 
 
 
-def trace_Nuage(nomf):
+def trace_Nuage(nomfichier):
     """trace un nuage de point des points de la fonction lit_fichier """
-    pass
+    pts = lit_fichier(nomfichier)
+    l1=list(listX)
+    l2=list(listY)
+    x=np.array(l1)
+    y=np.array(l2)
+    plt.plot(x,y,'g*')
+    plt.grid()
+    plt.show()
 
 
 def trace_droite(a,b):
     """elle prend 2 arguments de nombres flottants
     a: le coefficiant directeur de la droite et
     b: l'ordonnée 1a l'origine.
-    Rrepresentstion entre 2 points
+    Representation entre 2 points
     de cette droite."""
     pass
-
-
-
 
 
 
@@ -80,54 +82,74 @@ def trace_droite(a,b):
 def moyenne(serie):
     """Prend une liste de reels et calcul leur moyenne
     retourne la moyenne"""
-    pass
+    moy = 0
+    for i in range (len(serie)):
+        moy += serie[i]
+    moy /= len(serie)
+    return moy
 
 
 def variance(serie):
     """prend egalement une liste de reels et calcul la variance
     retourne la variance"""
-    pass
+    var=0
+    moy = moyenne(serie)
+    for i in range (len(serie)):
+        var+= (serie[i]-moy)**2
+    var /= len(serie)
+    return(var)
 
 
 def covariance(serieX, serieY):
     """2 listes de reels representent 2 variables statistiques
      renvoie la covariance de ces deux variables """
-    
-    pass
-
+    moyX, moyY = moyenne(serieX), moyenne(serieY)
+    cov=0
+    for i in range(len(serieX)):
+        cov+= (serieX[i]-moyX)*(serieY[i]-moyY)
+    cov/= len(serieX)
+    return(cov)
 
 def correlation(serieX,serieY):
     """prend comme argument 2 listes de reels et retourne
     leur ocefficient de correlation linéaire """
-
-    pass
-
+    cov= covariance(serieX,serieY)
+    varX, varY = variance(serieX), variance(serieY)
+    cor = cov/((varX*varY)**(1/2)) 
+    return(cor)
 
 def forteCorrelation(serieX,serieY):
     """prend 2 listes de reels et decide de combien 
     elles sont correlees"""
-    pass
+    cor = correlation(serieX,serieY)
+    if cor>= 0.8 and cor<=1:
+        return True
+    elif cor<=-0.8 and cor>=-1:
+        return True
+    else:
+        return False
+
 
 def droite_reg(serieX,serieY):
     """calcul les coefficients de la droite 
     elle les retournera sous forme d'un tuple (coeff_dir, ord_orig)"""
-    pass
+    a = 0
+    b = 0
+    if forteCorrelation(serieX,serieY) == True:
+        a = covariance(serieX, serieY)/variance(serieX)
+        b = moyenne(serieY)- (a*moyenne(serieX))
+    (coeff_dir, ord_orig) = (a, b)
+    return((coeff_dir, ord_orig))
 
 
-
-
-
-
-
-
-
-#Fonction fenetre graphique 
+#fenetre graphique.
 def Tracerdroite():
     """Boutton lorsqu'on clique dessus, une ligne coloree apparait"""
     pass
 
+
 def autrecouleur():
-    """Lorsqu'on clique une choisie une autrevcouleur pour la droite """
+    """Lorsqu'on clique une choisie une autre couleur pour la droite """
     pass
 
 
@@ -146,7 +168,6 @@ canvas = tk.Canvas(racine, width=1000, height=1000, bg='black')
 tracerdroite = tk.Button(racine, text="Tracer la droite", command=Tracerdroite)
 Autrecouleur=tk.Button(racine,text="Autre couleur",command=autrecouleur )
 Quitter=tk.Button(racine,text="Quitter", command=quitter)
-
 
 
 
