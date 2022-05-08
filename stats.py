@@ -142,7 +142,6 @@ def lit_fichier(nomfichier):
     fic.close()
     
     print("La taille de la liste est ",len(listX))
-    print(listX)
     return listX, listY
 
 def trace_Nuage(nomfichier):
@@ -295,7 +294,6 @@ def dessinpt(event):
     if Dessin['text']=="Arret":
         x, y = event.x, event.y
         rond=canvas.create_oval((x-3,y-3),((x+3),(y+3)),fill="red",width=2)
-        print(x, y)
         lx.append(x)
         ly.append(y)
     else:
@@ -304,7 +302,6 @@ def dessinpt(event):
     
     if forteCorrelation(lx,ly)==True:
         list_X,list_Y=lx,ly
-        print(list_X,list_Y)
         tracerdroite.configure(command=lambda test2=droite_reg(list_X,list_Y): trace_droite(*test2))
     else:
         print("il n'ya pas de forte correlation entre les points")
