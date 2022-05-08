@@ -1,5 +1,10 @@
+#Dans cette partie partie on est allez plus loin et on a codé une fonction qui permet de ne plus les fonctions à la main 
+#mais de les faire automatiquement 
+
 import tkinter as tk 
 import random as rd
+import csv
+
 
 
 #Longueur et largeur de notre canvas
@@ -21,6 +26,7 @@ c = ['deepskyblue3', 'peachpuff', 'salmon', 'mediumorchid', 'darkturquoise', 'la
 a = 0
 b = 0
 v = "green"
+
 
 
 def cree_fichier_alea(nbr, nomfichier):
@@ -90,7 +96,7 @@ def trace_Nuage(nomfichier):
 
 
 def trace_droite(a, b):
-    global v
+    global v,ligne
     """elle prend 2 arguments de nombres flottants
     a: le coefficiant directeur de la droite et
     b: l'ordonnée 1a l'origine.
@@ -98,7 +104,7 @@ def trace_droite(a, b):
     de cette droite."""
     x1, y1 = 0, b  # on a l'ordonnee a l'origine qui sert de premier point
     x2, y2 = len(listX), a * len(listX) + b  # on calcule l'emplacement du dernier point
-    canvas.create_line((x1, y1), (x2, y2), fill=v)
+    ligne=canvas.create_line((x1, y1), (x2, y2), fill=v)
 
 
 # Calculs statistiques"
@@ -195,10 +201,11 @@ def droite_reg(listX, listY):
 
 
 def autrecouleur():
-    global v
+    global v,ligne
     """Lorsqu'on clique une choisie une autre couleur pour la droite """
     c_choice = rd.choice(c)
     v = c_choice
+    canvas.itemconfig(ligne,fill=v)
 
 def marchebouton():
     """change la configuration du point """
@@ -232,23 +239,43 @@ def dessinpt(event):
         tracerdroite.configure(command=lambda test1 = droite_reg(list_testx,list_testy):trace_droite(*test1))
 
 
-    
-
 
 
 # fenetre graphique
 racine = tk.Tk()
 racine.title("projet stats")
 canvas = tk.Canvas(racine, width=largeur, height=longueur, bg='black')
-list_testx, list_testy = lit_fichier("exemple.txt")
-#a_test, b_test = droite_reg(list_testx,list_testy)
-#tracerdroite = tk.Button(racine, text="Tracer la droite", command=trace_droite(*droite_reg(list_testx,list_testy)))
+
+
+
+n=int(input("Bienvenue, Si tu souhaites Créer ton propre fichier random taper 1, prendre un fichier déjà sur ton disque dur tape 2"))
+
+if n==1:
+    a=input("Veuiller ecrire le nom de ton fichier avec 2 guillemets exemple:'statistique 2010'")
+    b=int(input("Veuiller entrer le nombre de ligne de ton fichier"))
+    cree_fichier_alea(n,a)
+    c=input("Veux tu tracer le nuage de point: Si oui taper 1 si non taper 2")
+    if c==1: 
+        trace_Nuage(a)
+        list_testx, list_testy = lit_fichier(a)
+    elif c==2:
+        list_testx, list_testy = lit_fichier(a)
+elif n==2:
+    a=input("Veuiller ecrire le nom du fichier avec 2 guillemets exemple:'statistique 2010'") 
+    c=input("Veux tu tracer le nuage de point: Si oui taper 1 si non taper 2")
+    if c==1: 
+        trace_Nuage(a)
+        list_testx, list_testy = lit_fichier(a)
+    elif c==2:
+        list_testx, list_testy = lit_fichier(a)  
+
+
 tracerdroite = tk.Button(racine, text="Tracer la droite", command=lambda test1 = droite_reg(list_testx,list_testy)  : trace_droite(*test1))
 Autrecouleur = tk.Button(racine, text="Autre couleur", command=autrecouleur)
 Quitter = tk.Button(racine, text="Quitter", command=canvas.quit)
 Dessin = tk.Button(racine,text= " Dessin", command=marchebouton)
 
-trace_Nuage("exemple.txt") #ajoute le nom du fichier que tu souhaites tracer le nuage de point
+
 
 canvas.bind('<Button-1>',dessinpt)
 Dessin.grid()
@@ -260,9 +287,3 @@ canvas.grid()
 
 racine.mainloop()
 
-
-
-#si on clique sur un des points ca nous donne ses coordonnées 
-# loop zoom dans le canvas 
-#arranger le bouton quitter
-#implimenter ce que j'ai fait pour ville_virgule.csv

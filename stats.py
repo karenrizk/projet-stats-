@@ -1,6 +1,8 @@
 
 import tkinter as tk 
 import random as rd
+import csv
+
 
 
 #Longueur et largeur de notre canvas
@@ -14,6 +16,21 @@ lx=[]
 ly=[]
 
 
+#Variable pour le fichier ville virgule
+list10=[]
+list12=[]
+
+nb_10=[]
+nb_12=[]
+
+hab_10=[]
+hab_12=[]
+
+
+
+
+
+
 # Liste de couleurs
 c = ['deepskyblue3', 'peachpuff', 'salmon', 'mediumorchid', 'darkturquoise', 'lawngreen', 'gold', 'blue', 'green',
      'red', 'black']
@@ -22,6 +39,66 @@ c = ['deepskyblue3', 'peachpuff', 'salmon', 'mediumorchid', 'darkturquoise', 'la
 a = 0
 b = 0
 v = "green"
+
+def file_cvs():
+    """Prendre le fichier cvs villes_virgules et extraire les 2 listes entières"""
+    filename = open('villes_virgule.csv','r')
+
+    file=csv.DictReader(filename)
+
+    for col in file:
+        nb_10.append(col["nb_hab_2010"])
+        nb_12.append(col["nb_hab_2012"])
+
+    for i in range(len(nb_10)):
+        nb_12[i]=float(nb_12[i])
+        if nb_10[i]<=500:
+            hab_10.append(nb_10[i])
+        else:
+            continue
+
+    for i in range(len(nb_12)):
+        nb_12[i]=float(nb_12[i])
+        if nb_12[i]<=500:
+            hab_12.append(nb_12[i])
+        else:
+            continue
+
+    print('nb_hab_2010:',hab_10)
+    print('nb_hab_2012:',hab_12)
+
+    filename.close()
+
+def trace_Nuage100():
+    """Tracer le nuage de point des 100 premières valeurs du fichier """
+    x = 0
+    y = 0
+    rayon = 2
+
+    for i in range(100):
+        list10.append(nb_10[i])
+        list12.append(nb_12[i])
+
+    for i in range(len(list10)):
+        x = list10[i]
+        y = list12[i]
+        cercle = canvas.create_oval((x - rayon,y - rayon), (x + rayon,y + rayon), fill='red')
+
+def trace_Nuage_n():
+    """Trace nuage de la fonction villes_virgules en rentrant un nombre n"""
+    n= int(input('rentrez le nombre de valeurs que vous voulez prendre en compte'))
+    x = 0
+    y = 0
+    rayon = 2
+
+    for i in range(100):
+        list10.append(nb_10[i])
+        list12.append(nb_12[i])
+
+    for i in range(len(list10)):
+        x = list10[i]
+        y = list12[i]
+        cercle = canvas.create_oval((x - rayon,y - rayon), (x + rayon,y + rayon), fill='red')
 
 
 def cree_fichier_alea(nbr, nomfichier):
@@ -91,7 +168,7 @@ def trace_Nuage(nomfichier):
 
 
 def trace_droite(a, b):
-    global v
+    global v,ligne
     """elle prend 2 arguments de nombres flottants
     a: le coefficiant directeur de la droite et
     b: l'ordonnée 1a l'origine.
@@ -99,7 +176,7 @@ def trace_droite(a, b):
     de cette droite."""
     x1, y1 = 0, b  # on a l'ordonnee a l'origine qui sert de premier point
     x2, y2 = len(listX), a * len(listX) + b  # on calcule l'emplacement du dernier point
-    canvas.create_line((x1, y1), (x2, y2), fill=v)
+    ligne=canvas.create_line((x1, y1), (x2, y2), fill=v)
 
 
 # Calculs statistiques"
@@ -196,10 +273,11 @@ def droite_reg(listX, listY):
 
 
 def autrecouleur():
-    global v
+    global v,ligne
     """Lorsqu'on clique une choisie une autre couleur pour la droite """
     c_choice = rd.choice(c)
     v = c_choice
+    canvas.itemconfig(ligne,fill=v)
 
 def marchebouton():
     """change la configuration du point """
@@ -233,23 +311,27 @@ def dessinpt(event):
         tracerdroite.configure(command=lambda test1 = droite_reg(list_testx,list_testy):trace_droite(*test1))
 
 
-    
-
 
 
 # fenetre graphique
 racine = tk.Tk()
 racine.title("projet stats")
 canvas = tk.Canvas(racine, width=largeur, height=longueur, bg='black')
-list_testx, list_testy = lit_fichier("exemple.txt")
-#a_test, b_test = droite_reg(list_testx,list_testy)
-#tracerdroite = tk.Button(racine, text="Tracer la droite", command=trace_droite(*droite_reg(list_testx,list_testy)))
+cree_fichier_alea(nbr,nomfichier)#veuiller ecrire le nom du fichier et le nombre de ligne si vous ne souhaitez pas créer un fichier aléatoire veuillez mettre un # avant
+list_testx, list_testy = lit_fichier(nomfichier) #veuiller ici le nom du fichier avec des guillemets 
 tracerdroite = tk.Button(racine, text="Tracer la droite", command=lambda test1 = droite_reg(list_testx,list_testy)  : trace_droite(*test1))
 Autrecouleur = tk.Button(racine, text="Autre couleur", command=autrecouleur)
 Quitter = tk.Button(racine, text="Quitter", command=canvas.quit)
 Dessin = tk.Button(racine,text= " Dessin", command=marchebouton)
 
-trace_Nuage("exemple.txt") #ajoute le nom du fichier que tu souhaites tracer le nuage de point
+trace_Nuage(nomfichier) #veuiller ecrire le nom du fichier à utiliser
+
+#file_cvs()
+#trace_Nuage100()
+#trace_Nuage_n()
+#correlation(hab_10,hab_12)
+#forteCorrelation(hab_10,hab_12)
+
 
 canvas.bind('<Button-1>',dessinpt)
 Dessin.grid()
@@ -261,9 +343,3 @@ canvas.grid()
 
 racine.mainloop()
 
-
-
-#si on clique sur un des points ca nous donne ses coordonnées 
-# loop zoom dans le canvas 
-#arranger le bouton quitter
-#implimenter ce que j'ai fait pour ville_virgule.csv
